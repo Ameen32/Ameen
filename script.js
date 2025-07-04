@@ -1,6 +1,29 @@
 // Ensure Firebase is initialized in firebase-config.js or directly here
-// const db = firebase.firestore();
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAyI9UU2vw4bMj20grFVvDN1QWVx7VkG0w",
+  authDomain: "sahithyotsavresults.firebaseapp.com",
+  databaseURL: "https://sahithyotsavresults-default-rtdb.firebaseio.com",
+  projectId: "sahithyotsavresults",
+  storageBucket: "sahithyotsavresults.firebasestorage.app",
+  messagingSenderId: "1026183092726",
+  appId: "1:1026183092726:web:fc3c32f77d992b1e414fd7",
+  measurementId: "G-SE7HHH66LP"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+// const db = firebase.firestore();
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 // DOM Elements
 const landingPage = document.getElementById('landing-page');
 const chatPage = document.getElementById('chat-page');
