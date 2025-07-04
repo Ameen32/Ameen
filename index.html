@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sahithyotsav Results Bot</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+</head>
+<body>
+
+    <div id="landing-page" class="page">
+        <div class="background-image-container" style="background-image: url('YOUR_BACKGROUND_IMAGE_URL_FROM_URL_PARAM');">
+            <div class="overlay-content">
+                <div class="logo">
+                    </div>
+                <h1>മത്സരഫലങ്ങൾ ഇനി ഓൺലൈനിൽ</h1>
+                <button id="get-results-button" class="get-results-btn">Get Results</button>
+            </div>
+            <div class="footer-contact">
+                <p>AUDIO & VIDEO LAB</p>
+                <p>Karadukandam, Pulikkal</p>
+                <p>Contact us: +91 9645625313</p>
+                <p>9946012826, 9633347192</p>
+                </div>
+        </div>
+        <button id="start-app-button-landing" class="start-btn-fixed">Start</button>
+    </div>
+
+    <div id="chat-page" class="page hidden">
+        <div class="chat-header">
+            Sahithyotsav Results Bot
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            </div>
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="Or type a program or category name..." disabled>
+            <button id="send-button" class="send-btn" disabled>↑</button>
+        </div>
+        <button id="start-chat-button" class="start-btn-fixed">Start</button>
+    </div>
+
+    <script src="firebase-config.js"></script> <script src="script.js"></script>
+</body>
+</html>
