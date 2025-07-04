@@ -1,5 +1,3 @@
-
-
 // Ensure Firebase is initialized in firebase-config.js or directly here
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
