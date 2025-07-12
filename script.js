@@ -1,290 +1,434 @@
-// Ensure Firebase is initialized in firebase-config.js or directly here
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// Import the functions you need from the SDKs you need
-
-// TODO: Add SDKs for Firebase products that you want to use
+// Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAyI9UU2vw4bMj20grFVvDN1QWVx7VkG0w",
-  authDomain: "sahithyotsavresults.firebaseapp.com",
-  databaseURL: "https://sahithyotsavresults-default-rtdb.firebaseio.com",
-  projectId: "sahithyotsavresults",
-  storageBucket: "sahithyotsavresults.firebasestorage.app",
-  messagingSenderId: "1026183092726",
-  appId: "1:1026183092726:web:fc3c32f77d992b1e414fd7",
-  measurementId: "G-SE7HHH66LP"
+    apiKey: "AIzaSyAzb3jbndemY5w3nkwk-sdIxLmYV0Qj9WQ",
+    authDomain: "sahithyotsav-results-288f2.firebaseapp.com",
+    databaseURL: "https://sahithyotsav-results-288f2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "sahithyotsav-results-288f2",
+    storageBucket: "sahithyotsav-results-288f2.firebasestorage.app",
+    messagingSenderId: "601783689113",
+    appId: "1:601783689113:web:cba8bff9cdc4a1aac43d08"
 };
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 // Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
 
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-// const db = firebase.firestore();
-
-// DOM Elements
-const landingPage = document.getElementById('landing-page');
-const chatPage = document.getElementById('chat-page');
-const getResultsButton = document.getElementById('get-results-button');
-const startAppButtonLanding = document.getElementById('start-app-button-landing');
-const startChatButton = document.getElementById('start-chat-button');
-const chatMessages = document.getElementById('chat-messages');
+const initialScreen = document.getElementById('initial-screen');
+const getResultsBtn = document.getElementById('get-results-btn');
+const chatbotScreen = document.getElementById('chatbot-screen');
+const chatArea = document.getElementById('chat-area');
+const startButton = document.getElementById('start-button');
 const userInput = document.getElementById('user-input');
 const sendButton = document.getElementById('send-button');
-const backgroundImageContainer = document.querySelector('.background-image-container');
 
-let currentStep = 0; // To manage the bot's conversation flow
-let selectedCategory = null;
-let typingEffectInterval;
+let currentCategory = '';
 
-// Function to get URL parameter for background image
-function getUrlParameter(name) {
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    var results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-}
+// ഓട്ടോ ഇമേജ് സ്ലൈഡറിനായുള്ള ചിത്രങ്ങൾ
+// നിങ്ങൾക്ക് ഇവിടെ കൂടുതൽ ചിത്രങ്ങൾ ചേർക്കാം. ഈ ചിത്രങ്ങൾ നിങ്ങളുടെ പ്രോജക്റ്റിന്റെ അതേ ഫോൾഡറിൽ അല്ലെങ്കിൽ കൃത്യമായ പാതയിൽ ഉണ്ടായിരിക്കണം.
+const adImages = [
+    'ad_image1.jpeg', // നിങ്ങളുടെ പരസ്യ ചിത്രങ്ങളുടെ പേരുകൾ ഇവിടെ നൽകുക
+    'ad_image2.jpeg',
+    'ad_image3.jpeg'
+];
+let currentSlide = 0;
+let slideInterval;
 
-// Set background image from URL parameter on load
-document.addEventListener('DOMContentLoaded', () => {
-    const bgImageUrl = getUrlParameter('bg');
-    if (bgImageUrl) {
-        backgroundImageContainer.style.backgroundImage = `url('${bgImageUrl}')`;
-    }
-});
+// ചാറ്റ് ഏരിയയിലേക്ക് ടൈപ്പിംഗ് ആനിമേഷനോടുകൂടിയ ഒരു സന്ദേശം ചേർക്കുന്ന ഫംഗ്ഷൻ.
+function addMessage(text, sender, isTyping = false, callback = null, isHtml = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message', sender);
+    const bubble = document.createElement('div');
+    bubble.classList.add('message-bubble');
+    messageDiv.appendChild(bubble);
+    chatArea.appendChild(messageDiv);
+    chatArea.scrollTop = chatArea.scrollHeight; // താഴേക്ക് സ്ക്രോൾ ചെയ്യുന്നു (പുതിയ സന്ദേശം കാണാൻ)
 
-// Helper function to simulate typing effect
-function typeMessage(element, text, callback) {
-    let i = 0;
-    element.textContent = ''; // Clear existing content
-    typingEffectInterval = setInterval(() => {
-        if (i < text.length) {
-            element.textContent += text.charAt(i);
-            i++;
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+    if (isTyping) {
+        let i = 0;
+        const typingInterval = setInterval(() => {
+            if (i < text.length) {
+                bubble.textContent += text.charAt(i);
+                i++;
+                chatArea.scrollTop = chatArea.scrollHeight;
+            } else {
+                clearInterval(typingInterval);
+                if (callback) callback();
+            }
+        }, 30); // ടൈപ്പിംഗ് വേഗത
+    } else {
+        if (isHtml) {
+            bubble.innerHTML = text;
         } else {
-            clearInterval(typingEffectInterval);
-            if (callback) callback();
+            bubble.textContent = text;
         }
-    }, 30); // Typing speed
-}
-
-// Function to add a bot message to the chat
-function addBotMessage(text, type = 'text') {
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message', 'bot-message');
-    messageDiv.innerHTML = `
-        <div class="avatar">🤖</div>
-        <div class="message-content" id="temp-message-content"></div>
-    `;
-    chatMessages.appendChild(messageDiv);
-    const tempMessageContent = messageDiv.querySelector('#temp-message-content');
-    tempMessageContent.removeAttribute('id'); // Remove ID to prevent duplicates
-    typeMessage(tempMessageContent, text, () => {
-        chatMessages.scrollTop = chatMessages.scrollHeight; // Ensure it scrolls to bottom after typing
-    });
-}
-
-// Function to add a user message to the chat
-function addUserMessage(text) {
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message', 'user-message');
-    messageDiv.innerHTML = `
-        <div class="message-content">${text}</div>
-        <div class="avatar">👤</div>
-    `;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-// Function to add selectable buttons (categories or programs)
-function addSelectableButtons(buttons, clickHandler) {
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.classList.add('message', 'bot-message');
-    buttonsContainer.innerHTML = `<div class="avatar">🤖</div><div class="message-content buttons-wrapper"></div>`;
-    const wrapper = buttonsContainer.querySelector('.buttons-wrapper');
-
-    buttons.forEach(buttonText => {
-        const button = document.createElement('span');
-        button.classList.add('selectable-button');
-        button.textContent = buttonText;
-        button.addEventListener('click', () => {
-            if (!button.classList.contains('selected')) {
-                // Deselect previous buttons if only one selection is allowed per step
-                wrapper.querySelectorAll('.selectable-button').forEach(btn => btn.classList.remove('selected'));
-                button.classList.add('selected');
-                addUserMessage(buttonText); // Show user's selection
-                clickHandler(buttonText);
-            }
-        });
-        wrapper.appendChild(button);
-    });
-    chatMessages.appendChild(buttonsContainer);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-// Function to display result card with image and download option
-async function displayResultCard(programName, imageUrl, participants) {
-    const cardDiv = document.createElement('div');
-    cardDiv.classList.add('message', 'bot-message');
-    cardDiv.innerHTML = `
-        <div class="avatar">🤖</div>
-        <div class="message-content result-card">
-            <h3>${programName} Results</h3>
-            ${imageUrl ? `<img src="${imageUrl}" alt="${programName} result">` : ''}
-            <p>Participants:</p>
-            <ul>
-                ${participants.map(p => `<li>${p.name} (ID: ${p.id})</li>`).join('')}
-            </ul>
-            ${imageUrl ? `<span class="download-icon" data-image-url="${imageUrl}">⬇️</span>` : ''}
-        </div>
-    `;
-    chatMessages.appendChild(cardDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-
-    // Add event listener for download icon
-    if (imageUrl) {
-        cardDiv.querySelector('.download-icon').addEventListener('click', (e) => {
-            const url = e.target.dataset.imageUrl;
-            downloadImage(url, programName + '_result.jpg');
-        });
+        chatArea.scrollTop = chatArea.scrollHeight;
+        if (callback) callback();
     }
+    return bubble; // ലോഡിംഗ് സ്പിന്നർ പോലുള്ള അപ്ഡേറ്റുകൾക്കായി ബബിൾ എലമെന്റ് തിരികെ നൽകുന്നു.
 }
 
-// Function to download image
-function downloadImage(url, filename) {
-    fetch(url)
-        .then(response => response.blob())
-        .then(blob => {
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href); // Clean up the URL object
-        })
-        .catch(e => console.error("Error downloading image:", e));
-}
+// കാറ്റഗറി ബട്ടണുകൾ കാണിക്കുന്നതിനുള്ള ഫംഗ്ഷൻ.
+function showCategoryButtons() {
+    addMessage("Please select a category to view results.", 'bot', true, () => {
+        console.log("Attempting to fetch categories from Firebase 'results' path...");
+        // Firebase-ലെ 'results' പാതയിൽ നിന്ന് കാറ്റഗറികൾ എടുക്കാൻ ശ്രമിക്കുന്നു.
+        database.ref('results').once('value', (snapshot) => {
+            if (snapshot.exists()) {
+                const allResults = snapshot.val();
+                console.log("All results fetched:", allResults);
+                // എല്ലാ ഫലങ്ങളും ലഭിച്ചു.
 
-// Bot's conversational flow
-async function proceedBotFlow(input = null) {
-    userInput.disabled = true;
-    sendButton.disabled = true;
+                const uniqueCategories = new Set();
+                for (let key in allResults) {
+                    if (allResults.hasOwnProperty(key) && allResults[key].category) {
+                        uniqueCategories.add(allResults[key].category);
+                    }
+                }
 
-    switch (currentStep) {
-        case 0: // Initial welcome message
-            await addBotMessage("Welcome to the Sahithyotsav Results Bot!");
-            currentStep = 1;
-            break;
-        case 1: // Ask to select category (after initial start)
-            await addBotMessage("Please select a category to view results.");
-            // Fetch categories from Firebase
-            try {
-                const categoriesSnapshot = await db.collection('categories').get();
-                const categories = categoriesSnapshot.docs.map(doc => doc.id); // Get category names
-                addSelectableButtons(categories, (category) => {
-                    selectedCategory = category;
-                    addUserMessage(category); // User's selection
-                    proceedBotFlow(); // Continue to next step
-                });
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-                addBotMessage("Sorry, I couldn't fetch categories at the moment. Please try again later.");
-            }
-            break;
-        case 2: // Display programs for selected category
-            if (selectedCategory) {
-                await addBotMessage(`Results for: ${selectedCategory}.`);
-                await addBotMessage("Please select a program:");
-                try {
-                    const programsSnapshot = await db.collection('categories').doc(selectedCategory).collection('programs').get();
-                    const programs = programsSnapshot.docs.map(doc => doc.data().name); // Assuming 'name' field
-                    addSelectableButtons(programs, (programName) => {
-                        addUserMessage(programName); // User's selection
-                        proceedBotFlow(programName); // Pass program name to next step
+                const categoryNames = Array.from(uniqueCategories);
+                console.log("Unique Categories found:", categoryNames);
+                // കണ്ടെത്തിയ കാറ്റഗറികൾ.
+
+                if (categoryNames.length > 0) {
+                    const buttonsContainer = document.createElement('div');
+                    buttonsContainer.classList.add('category-buttons', 'message', 'bot');
+
+                    categoryNames.forEach(category => {
+                        const button = document.createElement('button');
+                        button.textContent = category;
+                        button.addEventListener('click', () => handleCategorySelection(category));
+                        buttonsContainer.appendChild(button);
                     });
-                } catch (error) {
-                    console.error("Error fetching programs:", error);
-                    addBotMessage("Sorry, I couldn't fetch programs for this category. Please try again later.");
+                    chatArea.appendChild(buttonsContainer);
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                } else {
+                    console.log("No unique categories found in 'results' path.");
+                    // 'results' പാതയിൽ തനതായ കാറ്റഗറികളൊന്നും കണ്ടെത്തിയില്ല.
+                    addMessage("Sorry, no categories found at the moment.", 'bot');
                 }
             } else {
-                addBotMessage("Please select a category first.");
-                currentStep = 1; // Go back to category selection
-                proceedBotFlow();
+                console.log("No data found in Firebase at 'results' path.");
+                // Firebase-ലെ 'results' പാതയിൽ ഡാറ്റയൊന്നും കണ്ടെത്തിയില്ല.
+                addMessage("Sorry, no results found at the moment.", 'bot');
             }
-            break;
-        case 3: // Display program results
-            if (input) { // Input here is the selected program name
-                try {
-                    const programDoc = await db.collection('categories').doc(selectedCategory).collection('programs').where('name', '==', input).limit(1).get();
-                    if (!programDoc.empty) {
-                        const programData = programDoc.docs[0].data();
-                        displayResultCard(programData.name, programData.image, programData.participants || []);
-                    } else {
-                        addBotMessage("Sorry, I couldn't find results for that program.");
-                    }
-                } catch (error) {
-                    console.error("Error fetching program results:", error);
-                    addBotMessage("Sorry, I encountered an error while fetching results. Please try again.");
+        }, (error) => {
+            console.error("Error fetching results for categories:", error);
+            // കാറ്റഗറികൾ എടുക്കുന്നതിൽ പിശക് സംഭവിച്ചു.
+            addMessage("There was an error loading categories. Please try again later.", 'bot');
+        });
+    });
+}
+
+// കാറ്റഗറി തിരഞ്ഞെടുക്കുന്നത് കൈകാര്യം ചെയ്യുന്നതിനുള്ള ഫംഗ്ഷൻ.
+function handleCategorySelection(category) {
+    addMessage(category, 'user');
+    currentCategory = category;
+    addMessage(`Please select a program for ${category}:`, 'bot', true, () => {
+        showProgramButtons(category);
+    });
+}
+
+// ഒരു പ്രത്യേക കാറ്റഗറിക്കുള്ള പ്രോഗ്രാം ബട്ടണുകൾ കാണിക്കുന്നതിനുള്ള ഫംഗ്ഷൻ.
+function showProgramButtons(category) {
+    database.ref('results').once('value', (snapshot) => {
+        if (snapshot.exists()) {
+            const allResults = snapshot.val();
+            const uniquePrograms = new Set();
+
+            for (let key in allResults) {
+                if (allResults.hasOwnProperty(key) && allResults[key].category === category && allResults[key].program) {
+                    uniquePrograms.add(allResults[key].program);
                 }
             }
-            // After displaying results, you might want to ask if they want to view more
-            addBotMessage("Would you like to view results for another program or category? Click 'Start' again to go back to categories.");
-            currentStep = 1; // Allow going back to category selection by clicking start
-            userInput.disabled = false; // Enable typing for future possible features
-            sendButton.disabled = false;
-            break;
-        default:
-            addBotMessage("I'm not sure how to respond to that. Please click 'Start' to begin.");
-            currentStep = 1; // Reset to category selection
+
+            const programNames = Array.from(uniquePrograms);
+            console.log(`Unique Programs for ${category}:`, programNames);
+            // ${category} നായുള്ള തനതായ പ്രോഗ്രാമുകൾ.
+
+            if (programNames.length > 0) {
+                const buttonsContainer = document.createElement('div');
+                buttonsContainer.classList.add('program-buttons', 'message', 'bot');
+
+                programNames.forEach(program => {
+                    const button = document.createElement('button');
+                    button.textContent = program;
+                    button.addEventListener('click', () => handleProgramSelection(category, program));
+                    buttonsContainer.appendChild(button);
+                });
+                chatArea.appendChild(buttonsContainer);
+                chatArea.scrollTop = chatArea.scrollHeight;
+            } else {
+                console.log(`No programs found for category: ${category}`);
+                // ${category} എന്ന കാറ്റഗറിക്ക് പ്രോഗ്രാമുകളൊന്നും കണ്ടെത്തിയില്ല.
+                addMessage(`No programs found for ${category} at the moment.`, 'bot');
+            }
+        } else {
+            console.log("No data found in Firebase at 'results' path for programs.");
+            // പ്രോഗ്രാമുകൾക്കായി Firebase-ലെ 'results' പാതയിൽ ഡാറ്റയൊന്നും കണ്ടെത്തിയില്ല.
+            addMessage("Sorry, no results found at the moment.", 'bot');
+        }
+    }, (error) => {
+        console.error("Error fetching programs:", error);
+        // പ്രോഗ്രാമുകൾ എടുക്കുന്നതിൽ പിശക് സംഭവിച്ചു.
+        addMessage("There was an error loading programs. Please try again later.", 'bot');
+    });
+}
+
+// പ്രോഗ്രാം തിരഞ്ഞെടുക്കുന്നത് കൈകാര്യം ചെയ്യുന്നതിനുള്ള ഫംഗ്ഷൻ.
+function handleProgramSelection(category, program) {
+    addMessage(program, 'user');
+
+    // Add a message with a loading spinner
+    // ഒരു ലോഡിംഗ് സ്പിന്നറോടുകൂടിയ സന്ദേശം ചേർക്കുന്നു.
+    const loadingMessageBubble = addMessage('Loading image...', 'bot', false, null, true);
+    const loadingSpinner = document.createElement('div');
+    loadingSpinner.classList.add('loading-spinner');
+    loadingMessageBubble.appendChild(loadingSpinner);
+
+
+    database.ref('results').once('value', (snapshot) => {
+        // Remove loading spinner once data is fetched (success or failure)
+        // ഡാറ്റ ലഭിച്ചാൽ (വിജയിച്ചാലും പരാജയപ്പെട്ടാലും) ലോഡിംഗ് സ്പിന്നർ നീക്കം ചെയ്യുക.
+        loadingSpinner.remove();
+        loadingMessageBubble.textContent = ''; // Clear "Loading image..." text
+        // "Loading image..." എന്ന ടെക്സ്റ്റ് ക്ലിയർ ചെയ്യുന്നു.
+
+        if (snapshot.exists()) {
+            const allResults = snapshot.val();
+            let imageUrl = null;
+
+            for (let key in allResults) {
+                if (allResults.hasOwnProperty(key) && allResults[key].category === category && allResults[key].program === program) {
+                    imageUrl = allResults[key].imageUrl;
+                    break;
+                }
+            }
+
+            if (imageUrl) {
+                const imageResultDiv = document.createElement('div');
+                imageResultDiv.classList.add('image-result'); // No 'message' or 'bot' class here, it's inside the bubble
+                // ഇവിടെ 'message' അല്ലെങ്കിൽ 'bot' ക്ലാസ് ഇല്ല, ഇത് ബബിളിനുള്ളിലാണ്.
+                
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = program;
+                img.onload = () => {
+                    chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom after image loads
+                    // ചിത്രം ലോഡ് ചെയ്ത ശേഷം താഴേക്ക് സ്ക്രോൾ ചെയ്യുന്നു.
+                };
+                img.onerror = () => {
+                    loadingMessageBubble.textContent = "Error loading image."; // Update text if error loading image
+                    // ചിത്രം ലോഡ് ചെയ്യുന്നതിൽ പിശകുണ്ടെങ്കിൽ ടെക്സ്റ്റ് അപ്ഡേറ്റ് ചെയ്യുന്നു.
+                    chatArea.scrollTop = chatArea.scrollHeight;
+                };
+                imageResultDiv.appendChild(img);
+
+                const downloadIcon = document.createElement('button');
+                downloadIcon.classList.add('download-icon');
+                downloadIcon.title = 'Download Image';
+                downloadIcon.addEventListener('click', () => downloadImage(imageUrl, program));
+                imageResultDiv.appendChild(downloadIcon);
+                
+                loadingMessageBubble.appendChild(imageResultDiv); // Append the image result to the existing bubble
+                // നിലവിലുള്ള ബബിളിലേക്ക് ഇമേജ് റിസൾട്ട് ചേർക്കുന്നു.
+                chatArea.scrollTop = chatArea.scrollHeight;
+            } else {
+                loadingMessageBubble.textContent = "Image not found for this program."; // Update text if not found
+                // ചിത്രം കണ്ടെത്തിയില്ലെങ്കിൽ ടെക്സ്റ്റ് അപ്ഡേറ്റ് ചെയ്യുന്നു.
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }
+        } else {
+            loadingMessageBubble.textContent = "No results found in Firebase."; // Update text if no data
+            // ഡാറ്റ ഇല്ലെങ്കിൽ ടെക്സ്റ്റ് അപ്ഡേറ്റ് ചെയ്യുന്നു.
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+    }, (error) => {
+        loadingSpinner.remove(); // Ensure spinner is removed on error
+        // പിശക് സംഭവിച്ചാൽ സ്പിന്നർ നീക്കം ചെയ്തിട്ടുണ്ടെന്ന് ഉറപ്പാക്കുക.
+        loadingMessageBubble.textContent = 'There was an error loading the image. Please try again later.'; // Update text on error
+        // പിശക് സംഭവിച്ചാൽ ടെക്സ്റ്റ് അപ്ഡേറ്റ് ചെയ്യുന്നു.
+        console.error('Error fetching image URL:', error);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    });
+}
+
+// ചിത്രം ഡൗൺലോഡ് ചെയ്യുന്നതിനുള്ള ഫംഗ്ഷൻ.
+async function downloadImage(imageUrl, filename) {
+    try {
+        // fetch അഭ്യർത്ഥനയിൽ ഒരു mode: 'cors' ചേർക്കുക, ഇത് ചില ബ്രൗസറുകളിൽ സഹായകമാകും.
+        const response = await fetch(imageUrl, { mode: 'cors' }); 
+        
+        if (!response.ok) {
+            // HTTP സ്റ്റാറ്റസ് 200-299 റേഞ്ചിൽ അല്ലെങ്കിൽ പിശക് കാണിക്കുക.
+            throw new Error(`HTTP error! Status: ${response.status} - Could not fetch image.`);
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        
+        // ഫയൽ എക്സ്റ്റൻഷൻ URL-ൽ നിന്ന് കൂടുതൽ കൃത്യമായി കണ്ടെത്താൻ ശ്രമിക്കുക
+        // MIME ടൈപ്പ് ഉപയോഗിച്ച് എക്സ്റ്റൻഷൻ കണ്ടെത്തുക
+        let fileExtension = 'jpeg'; // default
+        if (blob.type.includes('image/png')) {
+            fileExtension = 'png';
+        } else if (blob.type.includes('image/gif')) {
+            fileExtension = 'gif';
+        } else if (blob.type.includes('image/webp')) {
+            fileExtension = 'webp';
+        } 
+        // URL-ൽ നിന്ന് തന്നെ അവസാനത്തെ ഭാഗം എടുക്കുക, പക്ഷെ അത് Query parameters ഇല്ലാതെ.
+        const urlParts = imageUrl.split('.');
+        const lastPart = urlParts[urlParts.length - 1];
+        const potentialExt = lastPart.split('?')[0].toLowerCase();
+
+        // അറിയാവുന്ന ചില എക്സ്റ്റൻഷനുകൾക്കായി മാത്രം ഇത് ഉപയോഗിക്കുക
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(potentialExt)) {
+            fileExtension = potentialExt;
+        }
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.${fileExtension}`; 
+        
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error downloading image:', error);
+        // ഉപയോക്താവിന് കൂടുതൽ വ്യക്തമായ സന്ദേശം നൽകുക
+        alert('Failed to download image. Please check your internet connection and try again. If the issue persists, the image might not be available or there\'s a server issue.');
     }
+}
+
+
+// സ്ലൈഡർ ചിത്രങ്ങൾ ലോഡ് ചെയ്യുകയും ഡിസ്പ്ലേ ചെയ്യുകയും ചെയ്യുന്ന ഫംഗ്ഷൻ
+function loadSliderImages() {
+    const adSlider = document.getElementById('ad-slider');
+    const sliderDots = document.getElementById('slider-dots');
+    if (!adSlider || !sliderDots) return; // എലമെന്റുകൾ ഉണ്ടോ എന്ന് ഉറപ്പാക്കുക
+
+    adSlider.innerHTML = ''; // നിലവിലുള്ള ചിത്രങ്ങൾ നീക്കം ചെയ്യുക
+    sliderDots.innerHTML = ''; // നിലവിലുള്ള ഡോട്ട്സ് നീക്കം ചെയ്യുക
+
+    adImages.forEach((imageSrc, index) => {
+        const img = document.createElement('img');
+        img.src = imageSrc;
+        img.alt = `Ad Image ${index + 1}`;
+        adSlider.appendChild(img);
+
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (index === 0) {
+            dot.classList.add('active');
+        }
+        dot.addEventListener('click', () => {
+            currentSlide = index;
+            updateSlider();
+            resetSlideInterval();
+        });
+        sliderDots.appendChild(dot);
+    });
+}
+
+// സ്ലൈഡർ അപ്ഡേറ്റ് ചെയ്യുന്ന ഫംഗ്ഷൻ
+function updateSlider() {
+    const adSlider = document.getElementById('ad-slider');
+    if (!adSlider || adImages.length === 0) return;
+
+    // ചിത്രങ്ങൾ ലോഡ് ആയതിന് ശേഷം മാത്രമേ clientWidth ഉപയോഗിക്കാവൂ
+    const firstImage = adSlider.querySelector('img');
+    if (!firstImage || firstImage.clientWidth === 0) {
+        // ചിത്രം പൂർണ്ണമായി ലോഡ് ആയിട്ടില്ലെങ്കിൽ, ഒരു ചെറിയ ഡിലേ നൽകി വീണ്ടും ശ്രമിക്കുക
+        setTimeout(updateSlider, 50); 
+        return;
+    }
+    const slideWidth = firstImage.clientWidth;
+    adSlider.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+
+    // ഡോട്ട്സ് അപ്ഡേറ്റ് ചെയ്യുക
+    document.querySelectorAll('.dot').forEach((dot, index) => {
+        if (index === currentSlide) {
+            dot.classList.add('active');
+        } else {
+            dot.classList.remove('active');
+        }
+    });
+}
+
+// അടുത്ത സ്ലൈഡിലേക്ക് പോകുന്ന ഫംഗ്ഷൻ
+function nextSlide() {
+    currentSlide = (currentSlide + 1) % adImages.length;
+    updateSlider();
+}
+
+// സ്ലൈഡ് ഇന്റർവൽ റീസെറ്റ് ചെയ്യുന്ന ഫംഗ്ഷൻ
+function resetSlideInterval() {
+    clearInterval(slideInterval);
+    slideInterval = setInterval(nextSlide, 3000); // 3 സെക്കൻഡ് ഇടവേളയിൽ സ്ലൈഡ് മാറും
 }
 
 // Event Listeners
-
-// Landing Page Get Results Button
-getResultsButton.addEventListener('click', () => {
-    landingPage.classList.add('hidden');
-    chatPage.classList.remove('hidden');
-    proceedBotFlow(); // Start the chat flow with welcome message
+// ഇവന്റ് ലിസണറുകൾ.
+getResultsBtn.addEventListener('click', () => {
+    initialScreen.classList.remove('active');
+    chatbotScreen.classList.add('active');
+    clearInterval(slideInterval); // ചാറ്റ്ബോട്ട് സ്ക്രീനിലേക്ക് മാറുമ്പോൾ സ്ലൈഡർ നിർത്തുക
+    addMessage("Welcome to the Sahithyotsav Results Bot!", 'bot', true, () => {
+        startButton.style.display = 'block'; // സ്റ്റാർട്ട് ബട്ടൺ കാണിക്കുക.
+    });
 });
 
-// Landing Page Start Button (bottom fixed)
-startAppButtonLanding.addEventListener('click', () => {
-    landingPage.classList.add('hidden');
-    chatPage.classList.remove('hidden');
-    proceedBotFlow(); // Start the chat flow with welcome message
+startButton.addEventListener('click', () => {
+    startButton.style.display = 'none'; // സ്റ്റാർട്ട് ബട്ടൺ മറയ്ക്കുക.
+    showCategoryButtons();
 });
 
-// Chat Page Start Button (bottom fixed)
-startChatButton.addEventListener('click', () => {
-    // Reset chat state if needed
-    chatMessages.innerHTML = ''; // Clear previous messages
-    currentStep = 0; // Reset flow to start
-    selectedCategory = null;
-    proceedBotFlow();
-});
-
-// User input (if you want to add free text input later)
-sendButton.addEventListener('click', () => {
-    const message = userInput.value.trim();
-    if (message) {
-        addUserMessage(message);
-        userInput.value = '';
-        // For now, free text input isn't fully implemented for flow control
-        // It's primarily for responding to selectable buttons
-        addBotMessage("Please use the buttons provided for navigation.");
+// പേജ് ലോഡ് ചെയ്യുമ്പോൾ സ്ലൈഡർ ആരംഭിക്കുക
+document.addEventListener('DOMContentLoaded', () => {
+    if (adImages.length > 0) {
+        loadSliderImages();
+        // ചിത്രങ്ങൾ ലോഡ് ആകുന്നതുവരെ കാത്തിരിക്കാൻ setTimeout ഉപയോഗിക്കുന്നു
+        // ഇത് clientWidth പ്രശ്നം ഒഴിവാക്കാൻ സഹായിക്കും.
+        const firstImage = document.querySelector('.ad-slider img');
+        if (firstImage) {
+            firstImage.onload = () => {
+                updateSlider();
+                resetSlideInterval();
+            };
+            // ചിത്രം ചിലപ്പോൾ ക്യാഷിൽ നിന്ന് വരുമ്പോൾ onload ഇവന്റ് ട്രിഗർ ആവില്ല.
+            // അതുകൊണ്ട് ചിത്രം ഇതിനകം ലോഡ് ആയിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുക.
+            if (firstImage.complete) {
+                updateSlider();
+                resetSlideInterval();
+            }
+        } else {
+            // ചിത്രങ്ങൾ ഇല്ലെങ്കിൽ, നേരിട്ട് സ്ലൈഡർ അപ്ഡേറ്റ് ചെയ്യുക
+            updateSlider();
+            resetSlideInterval();
+        }
     }
 });
 
-userInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        sendButton.click();
-    }
-});
+// Optional: Enable user input and send button after initial interaction or at a certain point
+// For now, they remain disabled as per your HTML
+// ഓപ്ഷണൽ: ആദ്യത്തെ ഇടപെടലിന് ശേഷമോ അല്ലെങ്കിൽ ഒരു പ്രത്യേക സമയത്തോ ഉപയോക്തൃ ഇൻപുട്ടും അയയ്‌ക്കാനുള്ള ബട്ടണും പ്രവർത്തനക്ഷമമാക്കുക.
+// നിലവിൽ, നിങ്ങളുടെ HTML പ്രകാരം അവ പ്രവർത്തനരഹിതമായി തുടരും.
+// userInput.addEventListener('keypress', (e) => {
+//        if (e.key === 'Enter') {
+//            handleUserInput();
+//        }
+// });
+
+// sendButton.addEventListener('click', handleUserInput);
+
+// function handleUserInput() {
+//        const message = userInput.value.trim();
+//        if (message) {
+//            addMessage(message, 'user');
+//            userInput.value = '';
+//            // ഇവിടെ ടൈപ്പ് ചെയ്യാൻ അനുവദിക്കുകയാണെങ്കിൽ ഉപയോക്തൃ ഇൻപുട്ട് പ്രോസസ്സ് ചെയ്യാനുള്ള ലോജിക് ചേർക്കുക.
+//            // ഈ ബോട്ടിനെ സംബന്ധിച്ചിടത്തോളം, ഇത് പ്രധാനമായും കാറ്റഗറികൾക്കും പ്രോഗ്രാമുകൾക്കുമുള്ള ബട്ടൺ അധിഷ്ഠിതമാണ്.
+//        }
+// }
