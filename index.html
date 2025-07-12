@@ -5,38 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sahithyotsav Results Bot</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
 </head>
 <body>
-
-    <div id="landing-page" class="page">
-        <div class="background-image-container" style="background-image: url('https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fbeautiful-nature&psig=AOvVaw0LYFgAxyfgSemIqzejNcwc&ust=1751742375711000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJj3sYjzo44DFQAAAAAdAAAAABAE');">
-            <div class="overlay-content">
-                <div class="logo">
+    <div id="initial-screen" class="screen active">
+        <img src="your_full_image.jpeg" alt="Sahithyotsav" class="full-background-image">
+        <button id="get-results-btn">Get Results</button>
+        <div class="footer">
+            <div class="ad-slider-container">
+                <div class="ad-slider" id="ad-slider">
                     </div>
-                <h1>മത്സരഫലങ്ങൾ ഇനി ഓൺലൈനിൽ</h1>
-                <button id="get-results-button" class="get-results-btn">Get Results</button>
+                <div class="slider-dots" id="slider-dots">
+                    </div>
             </div>
-            
+            <p class="developer">Developed By Creative Kafe</p>
         </div>
-        <button id="start-app-button-landing" class="start-btn-fixed">Start</button>
     </div>
 
-    <div id="chat-page" class="page hidden">
-        <div class="chat-header">
-            Sahithyotsav Results Bot
-        </div>
-        <div id="chat-messages" class="chat-messages">
+    <div id="chatbot-screen" class="screen">
+        <div class="chatbot-header">Sahithyotsav Results Bot</div>
+        <div class="chat-area" id="chat-area">
             </div>
-        <div class="chat-input-area">
+        <div class="input-area">
+            <button id="start-button" class="start-button">Start</button>
             <input type="text" id="user-input" placeholder="Or type a program or category name..." disabled>
-            <button id="send-button" class="send-btn" disabled>↑</button>
+            <button id="send-button" class="send-button" disabled>↑</button>
         </div>
-        <button id="start-chat-button" class="start-btn-fixed">Start</button>
     </div>
 
-    <script src="firebase-config.js"></script> <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
