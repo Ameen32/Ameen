@@ -1,300 +1,326 @@
 body {
-    margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #1a1a2e; /* Dark background as in screenshot */
-    color: #fff;
-    overflow: hidden; /* Prevent scrolling on body */
-}
-
-.page {
-    width: 100vw;
-    height: 100vh;
+    background-color: #1a1a2e; /* കടും നിറം */
+    color: #e0e0e0;
+    margin: 0;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: relative;
+    min-height: 100vh;
+    overflow: hidden; /* ആദ്യ സ്ക്രീനിൽ സ്ക്രോൾബാർ മറയ്ക്കാൻ */
 }
 
-.hidden {
-    display: none;
-}
-
-/* Landing Page Styles */
-.background-image-container {
+.screen {
     width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
+    max-width: 800px; /* ആവശ്യത്തിനനുസരിച്ച് ക്രമീകരിക്കുക */
+    height: 100vh;
+    background-color: #151524; /* സ്ക്രീനുകൾക്ക് കടും നിറം */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    display: none; /* സ്വതേ മറഞ്ഞിരിക്കുന്നു */
+    position: relative;
+    overflow: hidden; /* ആദ്യ സ്ക്രീൻ ചിത്രം ക്രമീകരിക്കാൻ */
+}
+
+.screen.active {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    /* align-items: center; സെന്റർ ചെയ്യാൻ */
+}
+
+/* ആദ്യ സ്ക്രീൻ സ്റ്റൈലുകൾ */
+#initial-screen {
+    justify-content: flex-start; /* പരസ്യത്തിനും അടിക്കുറിപ്പിനും മുകളിലേക്ക് ക്രമീകരിക്കുക */
     align-items: center;
-    text-align: center;
+    padding-top: 50px;
+}
+
+.full-background-image {
     position: absolute;
     top: 0;
     left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* സ്ക്രീൻ മുഴുവൻ കവർ ചെയ്യുക */
+    z-index: 0;
+    filter: brightness(0.6); /* ചിത്രത്തിന് അല്പം ഇരുണ്ട നിറം നൽകുക */
 }
 
-.overlay-content {
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
-    padding: 20px;
-    border-radius: 10px;
+#get-results-btn {
     z-index: 1;
-}
-
-.get-results-btn {
     padding: 15px 30px;
-    background-color: #6a1b9a; /* Purple-ish color */
+    font-size: 1.2em;
+    background-color: #6eb044; /* പർപ്പിൾ */
     color: white;
     border: none;
-    border-radius: 15px; /* Border radius as requested */
-    font-size: 1.2em;
+    border-radius: 8px;
     cursor: pointer;
-    margin-top: 20px;
+    transition: background-color 0.3s ease;
+    margin-top: 300px; /* സ്ഥാനം ക്രമീകരിക്കുക */
+}
+
+#get-results-btn:hover {
+    background-color: #3bbeb8;
+}
+
+.footer {
+    z-index: 1;
+    position: absolute;
+    bottom: 20px;
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    color: #aaa;
+    display: flex; /* ഫൂട്ടർ ഉള്ളടക്കങ്ങൾ ക്രമീകരിക്കാൻ */
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* സ്ലൈഡറിനും ഡെവലപ്പർ ടെക്സ്റ്റിനും ഇടയിലുള്ള സ്പേസ് */
+}
+
+.developer {
+    font-size: 0.9em;
+}
+
+/* ഓട്ടോ ഇമേജ് സ്ലൈഡർ സ്റ്റൈലുകൾ */
+.ad-slider-container {
+    width: 100%;
+    max-width: 400px; /* സ്ലൈഡറിന്റെ പരമാവധി വീതി */
+    height: 100px; /* സ്ലൈഡറിന്റെ ഉയരം */
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+    background-color: #524949; /* സ്ലൈഡർ ലോഡ് ആവുന്നതിന് മുൻപ് കാണുന്ന നിറം */
+}
+
+.ad-slider {
+    display: flex;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+}
+
+.ad-slider img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* ചിത്രം സ്ലൈഡറിനുള്ളിൽ പൂർണ്ണമായും കാണിക്കാൻ */
+    flex-shrink: 0; /* ചിത്രങ്ങൾ ചുരുങ്ങാതിരിക്കാൻ */
+    border-radius: 8px;
+}
+
+.slider-dots {
+    position: absolute;
+    bottom: 5px; /* സ്ലൈഡറിന്റെ താഴെ ഡോട്ട്സ് സ്ഥാപിക്കാൻ */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 5px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-.get-results-btn:hover {
-    background-color: #8e24aa;
+.dot.active {
+    background-color: #fff;
 }
 
-.footer-contact {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    background-color: #333; /* Darker background for footer */
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 0.9em;
-    z-index: 1;
-    width: 90%;
-    max-width: 400px;
-}
 
-/* Chat Page Styles */
-.chat-page {
-    background-color: #282c34; /* Darker chat background */
-    display: flex;
+/* ചാറ്റ്ബോട്ട് സ്ക്രീൻ സ്റ്റൈലുകൾ */
+#chatbot-screen {
     flex-direction: column;
-    height: 100vh;
-    width: 100vw;
-    position: relative;
-    padding-bottom: 70px; /* Space for the fixed start button */
-    box-sizing: border-box;
+    justify-content: space-between;
 }
 
-.chat-header {
-    background-color: #333;
+.chatbot-header {
+    background-color: #3a3a5a;
     padding: 15px;
     text-align: center;
     font-size: 1.2em;
-    border-bottom: 1px solid #444;
+    font-weight: bold;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
 
-.chat-messages {
+.chat-area {
     flex-grow: 1;
     padding: 20px;
-    overflow-y: auto; /* Enable scrolling for messages */
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
+    gap: 10px;
+    padding-bottom: 80px; /* ഇൻപുട്ട് ഏരിയക്ക് സ്ഥലം നൽകാൻ */
 }
 
 .message {
-    margin-bottom: 15px;
     display: flex;
-    align-items: flex-end;
+    /* ഇത് ബോട്ട് സന്ദേശങ്ങളെ തുടക്കത്തിലേക്കും ഉപയോക്തൃ സന്ദേശങ്ങളെ അവസാനത്തിലേക്കും മാറ്റുന്നു */
 }
 
-.bot-message .avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: #007bff; /* Blue for bot avatar */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 0.8em;
-    margin-right: 10px;
-    flex-shrink: 0;
+.message.bot {
+    justify-content: flex-start;
 }
 
-.user-message .avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: #6c757d; /* Grey for user avatar */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 0.8em;
-    margin-left: 10px;
-    flex-shrink: 0;
+.message.user {
+    justify-content: flex-end;
 }
 
-.bot-message {
-    align-self: flex-start;
-    flex-direction: row;
-}
-
-.user-message {
-    align-self: flex-end;
-    flex-direction: row-reverse; /* For user messages on the right */
-    margin-top: 15px; /* Margin for user clicks as requested */
-}
-
-.message-content {
-    background-color: #444;
-    padding: 12px 18px;
-    border-radius: 15px;
+.message-bubble {
+    background-color: #4a4a6e;
+    padding: 10px 15px;
+    border-bottom-right-radius: 18px;
+    border-top-right-radius: 18px;
+    border-top-left-radius: 18px;
     max-width: 70%;
     word-wrap: break-word;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    color: #e0e0e0;
+    white-space: pre-wrap;
 }
 
-.user-message .message-content {
-    background-color: #6a1b9a; /* Purple for user messages */
+.message.user .message-bubble {
+    background-color: #560292; /* ഉപയോക്തൃ സന്ദേശങ്ങൾക്ക് പർപ്പിൾ */
+    padding: 10px 15px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-top-left-radius: 18px;
+    max-width: 70%;
+    word-wrap: break-word;
+    color: #e0e0e0;
+    white-space: pre-wrap;
 }
 
-.chat-input-area {
+.input-area {
     display: flex;
-    padding: 15px;
-    background-color: #333;
-    border-top: 1px solid #444;
-    position: sticky;
+    padding: 10px;
+    background-color: #3a3a5a;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    position: sticky; /* താഴെ ഉറപ്പിച്ചു നിർത്താൻ */
     bottom: 0;
     width: 100%;
     box-sizing: border-box;
-    z-index: 10;
 }
 
-.chat-input-area input {
+#user-input {
     flex-grow: 1;
-    padding: 10px 15px;
+    padding: 10px;
     border: none;
     border-radius: 20px;
     background-color: #555;
-    color: white;
-    outline: none;
+    color: #e0e0e0;
     font-size: 1em;
+    outline: none;
+    margin-right: 10px;
 }
 
-.chat-input-area button {
-    background-color: #6a1b9a;
+.send-button, .start-button {
+    padding: 10px 15px;
+    background-color: #c54228;
     color: white;
     border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.2em;
+    border-radius: 20px;
     cursor: pointer;
-    margin-left: 10px;
+    font-size: 1em;
     transition: background-color 0.3s ease;
 }
 
-.chat-input-area button:hover:not(:disabled) {
-    background-color: #8e24aa;
+.send-button:hover, .start-button:hover {
+    background-color: #a8341c;
 }
 
-.chat-input-area button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.start-button {
+    width: 100%;
+    margin: 0 10px;
+    padding: 15px;
+    font-size: 1.1em;
+    position: absolute; /* ഇൻപുട്ട് ഏരിയയുമായി ബന്ധപ്പെട്ട് സ്ഥാനം */
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+    border-radius: 8px;
 }
 
-.selectable-button {
-    background-color: #555;
+.category-buttons, .program-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.category-buttons button, .program-buttons button {
+    background-color: #5a5a7a;
     color: white;
-    border: 1px solid #777;
-    padding: 10px 20px;
+    border: none;
+    padding: 8px 15px;
     border-radius: 20px;
     cursor: pointer;
-    margin: 5px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: inline-block; /* For horizontal flow */
+    transition: background-color 0.3s ease;
 }
 
-.selectable-button:hover {
-    background-color: #777;
-    transform: translateY(-2px);
+.category-buttons button:hover, .program-buttons button:hover {
+    background-color: #7a7ab0;
 }
 
-.selectable-button.selected {
-    background-color: #6a1b9a;
-    border-color: #6a1b9a;
-}
-
-.result-card {
-    background-color: #3a3f47;
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 15px; /* Margin as requested */
+.image-result {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 0;
+    margin-top: 5px;
+    background-color: #706c6c4d;
+    padding: 10px;
+    border-radius: 8px;
     width: fit-content;
-    max-width: 80%;
-    align-self: flex-start; /* Bot message */
+    max-width: 90%;
+    position: relative; /* ഡൗൺലോഡ് ഐക്കണിന്റെ സ്ഥാനം ക്രമീകരിക്കാൻ */
 }
 
-.result-card img {
-    max-width: 100%;
+.image-result img {
+    max-width: 150px; /* തമ്പ്നെയിൽ വലുപ്പം */
     height: auto;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    border-radius: 5px;
+    display: block; /* ചിത്രത്തിന് താഴെയുള്ള അധിക സ്ഥലം ഒഴിവാക്കാൻ */
 }
 
 .download-icon {
-    margin-top: 10px;
-    cursor: pointer;
-    font-size: 1.5em;
-    color: #00bcd4; /* Cyan color for download icon */
-}
-
-/* Fixed start button at the bottom */
-.start-btn-fixed {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 25px;
-    background-color: #4CAF50; /* Green color */
-    color: white;
+    position: absolute;
+    bottom: 4px; /* ആവശ്യത്തിനനുസരിച്ച് ക്രമീകരിക്കുക */
+    right: 15px; /* ആവശ്യത്തിനനുസരിച്ച് ക്രമീകരിക്കുക */
+    background: url('download_icon.png') no-repeat center center; /* നിങ്ങളുടെ PNG ഐക്കണിലേക്കുള്ള പാത */
+    background-size: contain;
     border: none;
-    border-radius: 25px;
-    font-size: 1.1em;
+    width: 20px; /* ഐക്കണിന്റെ വലുപ്പം */
+    height: 20px; /* ഐക്കണിന്റെ വലുപ്പം */
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    transition: background-color 0.3s ease;
-    z-index: 20; /* Ensure it's above other content */
+    transition: transform 0.2s ease-in-out;
+    padding: 0;
+    filter: invert(1); /* കടും നിറമുള്ള പശ്ചാത്തലത്തിൽ വെളുത്ത ഐക്കൺ കാണാൻ */
 }
 
-.start-btn-fixed:hover {
-    background-color: #45a049;
+.download-icon:hover {
+    transform: scale(1.1); /* ഹോവർ ചെയ്യുമ്പോൾ അല്പം വലുതാക്കാൻ */
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-    .overlay-content {
-        width: 90%;
-        padding: 15px;
-    }
 
-    .get-results-btn {
-        padding: 12px 25px;
-        font-size: 1em;
-    }
+/* ചിത്രത്തിനുള്ള ലോഡിംഗ് ആനിമേഷൻ */
+.loading-spinner {
+    border: 4px solid #f3f3f3; /* ഇളം ചാരനിറം */
+    border-top: 4px solid #6a0dad; /* പർപ്പിൾ */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 10px auto;
+}
 
-    .footer-contact {
-        width: 80%;
-        padding: 10px;
-    }
-
-    .message-content {
-        max-width: 85%;
-    }
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
